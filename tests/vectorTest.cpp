@@ -557,5 +557,5 @@ test_vector(void)
 int
 main(void)
 {
-    test_vector<std::vector>();
+    test_vector<ft::vector>();
 }

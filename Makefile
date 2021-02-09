@@ -24,28 +24,28 @@ $(CONTAINERS:%=tests/std\:\:%Test): tests/std\:\:%: tests/%.cpp
 	$(CC) $(CPPFLAGS) $(CFLAGS) tests/$*.cpp -o $@
 
 $(FT_SED): ft\:\:%sed:
-	sed -ri s/"(test_$*<).*(>)"/"\1ft::$*\2"/ tests/$*Test.cpp
+	sed -E -i '' s/"(test_$*<).*(>)"/"\1ft::$*\2"/ tests/$*Test.cpp
 
 $(STD_SED): std\:\:%sed:
-	sed -ri s/"(test_$*<).*(>)"/"\1std::$*\2"/ tests/$*Test.cpp
+	sed -E -i '' s/"(test_$*<).*(>)"/"\1std::$*\2"/ tests/$*Test.cpp
 
 $(MAKE_RESULT): %: %color %sed tests/%Test
-	valgrind -q --leak-check=full ./tests/$@Test > results/$@.result
+	./tests/$@Test > results/$@.result
 
 $(MAKE_RESULT:%=show\:\:%): show\:\:%: %
 	cat results/$<.result
 
-$(CONTAINERS:%=diff\:\:%): diff\:\:%: std\:\:% ft\:\:%
+$(CONTAINERS:%=diff\\\:\\\:%): diff\\\:\\\:%: std::% ft::%
 	@tput setaf 3
 	diff -I "#.*" -s --unified=0 results/ft::$*.result results/std::$*.result
 
-$(CONTAINERS): %: std\:\:% ft\:\:%
+$(CONTAINERS): %: std::% ft::%
 	cat results/ft::$@.result
 	@tput setaf 3
 	diff -I "#.*" -s --unified=0 results/ft::$@.result results/std::$@.result
 
 clean: color
-	rm -rf $(BINS)
+	rm -rf $(BINS) $(BINS:%=%.DSYM/)
 
 fclean:	clean
 	rm -rf $(RESULTS)
