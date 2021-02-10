@@ -23,21 +23,36 @@ $(CONTAINERS:%=tests/ft\:\:%Test): tests/ft\:\:%: tests/%.cpp
 $(CONTAINERS:%=tests/std\:\:%Test): tests/std\:\:%: tests/%.cpp
 	$(CC) $(CPPFLAGS) $(CFLAGS) tests/$*.cpp -o $@
 
-$(FT_SED): ft\:\:%sed:
-	sed -E -i '' s/"(test_$*<).*(>)"/"\1ft::$*\2"/ tests/$*Test.cpp
-
-$(STD_SED): std\:\:%sed:
-	sed -E -i '' s/"(test_$*<).*(>)"/"\1std::$*\2"/ tests/$*Test.cpp
-
 $(MAKE_RESULT): %: %color %sed tests/%Test
 	./tests/$@Test > results/$@.result
 
 $(MAKE_RESULT:%=show\:\:%): show\:\:%: %
 	cat results/$<.result
 
+UNAME = $(shell uname -s)
+ifeq ($(UNAME), Linux)
+$(FT_SED): ft\:\:%sed:
+	sed -E -i s/"(test_$*<).*(>)"/"\1ft::$*\2"/ tests/$*Test.cpp
+
+$(STD_SED): std\:\:%sed:
+	sed -E -i s/"(test_$*<).*(>)"/"\1std::$*\2"/ tests/$*Test.cpp
+
+$(CONTAINERS:%=diff\:\:%): diff\:\:%: std::% ft::%
+	@tput setaf 3
+	diff -I "#.*" -s --unified=0 results/ft::$*.result results/std::$*.result
+endif
+
+ifeq ($(UNAME), Darwin)
+$(FT_SED): ft\:\:%sed:
+	sed -E -i '' s/"(test_$*<).*(>)"/"\1ft::$*\2"/ tests/$*Test.cpp
+
+$(STD_SED): std\:\:%sed:
+	sed -E -i '' s/"(test_$*<).*(>)"/"\1std::$*\2"/ tests/$*Test.cpp
+
 $(CONTAINERS:%=diff\\\:\\\:%): diff\\\:\\\:%: std::% ft::%
 	@tput setaf 3
 	diff -I "#.*" -s --unified=0 results/ft::$*.result results/std::$*.result
+endif
 
 $(CONTAINERS): %: std::% ft::%
 	cat results/ft::$@.result

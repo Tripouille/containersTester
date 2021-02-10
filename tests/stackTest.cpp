@@ -122,5 +122,5 @@ test_stack(void)
 int
 main(void)
 {
-    test_stack<ft::stack>();
+    test_stack<std::stack>();
 }

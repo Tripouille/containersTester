@@ -500,5 +500,5 @@ test_map(void)
 int
 main(void)
 {
-    test_map<ft::map>();
+    test_map<std::map>();
 }
